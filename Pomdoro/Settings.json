@@ -5,18 +5,18 @@
     "longBreak": "15"
   },
   "sounds": {
-    "start": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\system-notification-199277.mp3",
-    "end": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\ringtone-3-133487.mp3",
+    "start": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Commands\\StartCommand.cs",
+    "end": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\level-up-2-199574.mp3",
     "background": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\water-relaxing-sound-121599.mp3"
   },
   "current task": {
-    "time spent": "0.3",
+    "time spent": "0.35",
     "type": "",
     "timeLeft": "",
     "name": "",
     "timeleft": "0.05"
   },
-  "completedSessions": "14",
+  "completedSessions": "18",
   "completed tasks": [
     {
       "name": "study",
@@ -25,6 +25,22 @@
     {
       "name": "study",
       "timeSpent": "0.25"
+    },
+    {
+      "name": "coding",
+      "timeSpent": "0.3"
+    },
+    {
+      "name": "coding",
+      "timeSpent": "0.35"
+    },
+    {
+      "name": "coding",
+      "timeSpent": "0.35"
+    },
+    {
+      "name": "coding",
+      "timeSpent": "0.35"
     }
   ]
 }

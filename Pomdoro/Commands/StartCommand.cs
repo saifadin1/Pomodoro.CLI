@@ -29,13 +29,14 @@ namespace Pomodoro.Commands
                 .Title("Do you want to start a work session right now?")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Yes", "No"
+                    "Yes"+Emoji.Known.CheckMarkButton,
+                    "No" + Emoji.Known. CrossMark
                 }));
 
             await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["start"]);
 
 
-            if (choiceOfWorkSession == "No")
+            if (choiceOfWorkSession == "No" + Emoji.Known.CrossMark)
             {
                 Program.ClearCurrentTask();
                 Program.SaveConfiguration();
@@ -53,12 +54,11 @@ namespace Pomodoro.Commands
             Program.jsonObj["current task"]["timeLeft"] = Program.jsonObj["time"]["work"];
 
 
-            //SoundManager.Play(Program.jsonObj["sounds"]["background"]);
 
             await AnsiConsole.Progress()
             .StartAsync(async ctx =>
             {
-                var task1 = ctx.AddTask($"[green]Task: {settings.Name}[/]");
+                var task1 = ctx.AddTask($"[darkslategray1]Task{Emoji.Known.Fire}: {settings.Name}[/]");
                 task1.MaxValue((int)totalSteps);
 
                 for (int i = 0; i < totalSteps; i++)
@@ -76,11 +76,11 @@ namespace Pomodoro.Commands
             completedSessionsInt++;
             Program.jsonObj["completedSessions"] = completedSessionsInt.ToString();
 
-            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
+            / await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
 
             var choiceOfTaskEnded = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-            .Title($"Did you finish the task: {Program.jsonObj["current task"]["name"]}?")
+            .Title($"Have you finished the task?: {Program.jsonObj["current task"]["name"]}?")
             .PageSize(10)
             .AddChoices(new[] {
                 "Yes finally!" + Emoji.Known.GrinningFaceWithSmilingEyes,
@@ -106,7 +106,24 @@ namespace Pomodoro.Commands
 
                 completedTasks.Add(completedTask);
 
-                var newTask = AnsiConsole.Prompt(new TextPrompt<string>("Well done!\n so, What's the new task?" + Emoji.Known.CowboyHatFace));
+                var newTask = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    .Title("Well done!\n so, Do you have any other tasks?" + Emoji.Known.CowboyHatFace)
+                    .PageSize(10)
+                    .AddChoices(new[] {
+                    "Yes"+Emoji.Known.FaceWithHeadBandage,
+                    "No" + Emoji.Known.ManDancing
+                }));
+
+                if (newTask == "Yes" + Emoji.Known.FaceWithHeadBandage)
+                {
+                    newTask = AnsiConsole.Prompt(new TextPrompt<string>("What’s the next task?" + Emoji.Known.Eyes));
+                }
+                else
+                {
+                    Program.ClearCurrentTask();
+                    Program.SaveConfiguration();
+                    return 0;
+                }
                 Program.jsonObj["current task"]["name"] = newTask;
             }
 
@@ -120,19 +137,21 @@ namespace Pomodoro.Commands
                 .Title("Do you want to start a break?")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Yes", "No" , "Skip"
+                    "Yes"+Emoji.Known.CheckMarkButton,
+                    "No" + Emoji.Known. CrossMark,
+                    "Skip"+Emoji.Known.FastForwardButton
                 }));
 
             await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["start"]);
 
 
-            if (choiceOfBreakSession == "No")
+            if (choiceOfBreakSession == "No" + Emoji.Known.CrossMark)
             {
                 Program.ClearCurrentTask();
                 Program.SaveConfiguration();
                 return 0;
             } 
-            else if(choiceOfBreakSession == "Skip")
+            else if(choiceOfBreakSession == "Skip" + Emoji.Known.FastForwardButton)
             {
                 await ExecuteAsync(context, settings);
             }
@@ -151,7 +170,7 @@ namespace Pomodoro.Commands
             await AnsiConsole.Progress()
             .StartAsync(async ctx =>
             {
-                var task1 = ctx.AddTask($"[green]Break: {settings.Name}[/]");
+                var task1 = ctx.AddTask($"[green]Break{Emoji.Known.SleepingFace}[/]");
                 task1.MaxValue((int)totalSteps);
 
                 for (int i = 0; i < totalSteps; i++)

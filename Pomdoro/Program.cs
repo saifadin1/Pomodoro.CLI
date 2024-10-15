@@ -17,6 +17,7 @@ namespace Pomodoro
             {
                 config.AddCommand<Commands.StartCommand>("start");
                 config.AddCommand<Commands.StateCommand>("state");
+                config.AddCommand<Commands.ShowSettingsCommand>("set");
             });
 
             app.Run(args);
