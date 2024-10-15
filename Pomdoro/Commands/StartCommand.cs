@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
@@ -31,12 +32,13 @@ namespace Pomodoro.Commands
                     "Yes", "No"
                 }));
 
-            await SoundManager.PlayStartSound();
+            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["start"]);
+
 
             if (choiceOfWorkSession == "No")
             {
-                ClearCurrentTask();
-                SaveConfiguration();
+                Program.ClearCurrentTask();
+                Program.SaveConfiguration();
                 return 0;
             }
 
@@ -49,6 +51,9 @@ namespace Pomodoro.Commands
             Program.jsonObj["current task"]["name"] = settings.Name;
             Program.jsonObj["current task"]["type"] = "work";
             Program.jsonObj["current task"]["timeLeft"] = Program.jsonObj["time"]["work"];
+
+
+            //SoundManager.Play(Program.jsonObj["sounds"]["background"]);
 
             await AnsiConsole.Progress()
             .StartAsync(async ctx =>
@@ -71,23 +76,65 @@ namespace Pomodoro.Commands
             completedSessionsInt++;
             Program.jsonObj["completedSessions"] = completedSessionsInt.ToString();
 
-            await SoundManager.PlayEndSound();
+            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
 
+            var choiceOfTaskEnded = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+            .Title($"Did you finish the task: {Program.jsonObj["current task"]["name"]}?")
+            .PageSize(10)
+            .AddChoices(new[] {
+                "Yes finally!" + Emoji.Known.GrinningFaceWithSmilingEyes,
+                "Not yet" + Emoji.Known.SadButRelievedFace
+            }));
+
+            if(choiceOfTaskEnded == "Yes finally!" + Emoji.Known.GrinningFaceWithSmilingEyes)
+            {
+                JArray completedTasks = Program.jsonObj["completed tasks"] as JArray;
+
+                if (completedTasks == null)
+                {
+                    completedTasks = new JArray();
+                    Program.jsonObj["completed tasks"] = completedTasks;
+                }
+
+
+                JObject completedTask = new JObject
+                {
+                    { "name", Program.jsonObj["current task"]["name"].ToString() },
+                    { "timeSpent", Program.jsonObj["current task"]["time spent"].ToString() }  
+                };
+
+                completedTasks.Add(completedTask);
+
+                var newTask = AnsiConsole.Prompt(new TextPrompt<string>("Well done!\n so, What's the new task?" + Emoji.Known.CowboyHatFace));
+                Program.jsonObj["current task"]["name"] = newTask;
+            }
+
+            double timeSpent = totalWorkMinutes;
+            if(Double.TryParse(Program.jsonObj["current task"]["time spent"].ToString(), out double time)){
+                timeSpent += time;
+            }
+            Program.jsonObj["current task"]["time spent"] = timeSpent.ToString();
             var choiceOfBreakSession = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Do you want to start a break?")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Yes", "No"
+                    "Yes", "No" , "Skip"
                 }));
 
-            await SoundManager.PlayStartSound();
+            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["start"]);
+
 
             if (choiceOfBreakSession == "No")
             {
-                ClearCurrentTask();
-                SaveConfiguration();
+                Program.ClearCurrentTask();
+                Program.SaveConfiguration();
                 return 0;
+            } 
+            else if(choiceOfBreakSession == "Skip")
+            {
+                await ExecuteAsync(context, settings);
             }
             bool isLongBreak = (completedSessionsInt % 4 == 0);
             var totalBreakMinutes = Double.Parse(isLongBreak ? Program.jsonObj["time"]["longBreak"].ToString()
@@ -116,26 +163,15 @@ namespace Pomodoro.Commands
                 task1.StopTask();
             });
 
-            ClearCurrentTask();
-            SaveConfiguration();
+            Program.ClearCurrentTask();
+            Program.SaveConfiguration();
 
-            await SoundManager.PlayEndSound();
+            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
 
             await ExecuteAsync(context, settings);
             return 0;
         }
 
-        private void ClearCurrentTask()
-        {
-            Program.jsonObj["current task"]["name"] = "";
-            Program.jsonObj["current task"]["type"] = "";
-            Program.jsonObj["current task"]["timeLeft"] = "";
-        }
-
-        private void SaveConfiguration()
-        {
-            string output = Newtonsoft.Json.JsonConvert.SerializeObject(Program.jsonObj, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText("settings.json", output);
-        }
+        
     }
 }

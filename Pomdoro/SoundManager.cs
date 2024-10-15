@@ -10,11 +10,11 @@ namespace Pomodoro
 {
     internal class SoundManager
     {   
-        public async Task PlayStartSound()
+        public async Task PlaySoundAsync(dynamic sound)
         {
             try
             {
-                string relativePath = Program.jsonObj["sounds"]["start"].ToString();
+                string relativePath = sound;
 
                 string filePath = Path.Combine(AppContext.BaseDirectory, relativePath.TrimStart('~', '/'));
 
@@ -41,11 +41,12 @@ namespace Pomodoro
             }
         }
 
-        public async Task PlayEndSound()
+        
+        public void Play(dynamic sound)
         {
             try
             {
-                string relativePath = Program.jsonObj["sounds"]["end"].ToString();
+                string relativePath = sound;
 
                 string filePath = Path.Combine(AppContext.BaseDirectory, relativePath.TrimStart('~', '/'));
 
@@ -62,7 +63,7 @@ namespace Pomodoro
 
                     while (outputDevice.PlaybackState == PlaybackState.Playing)
                     {
-                        await Task.Delay(500);
+                        Task.Delay(500);
                     }
                 }
             }

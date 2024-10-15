@@ -6,12 +6,25 @@
   },
   "sounds": {
     "start": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\system-notification-199277.mp3",
-    "end": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\ringtone-3-133487.mp3"
+    "end": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\ringtone-3-133487.mp3",
+    "background": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\water-relaxing-sound-121599.mp3"
   },
   "current task": {
+    "time spent": "0.3",
     "type": "",
     "timeLeft": "",
-    "name": ""
+    "name": "",
+    "timeleft": "0.05"
   },
-  "completedSessions": "5"
+  "completedSessions": "14",
+  "completed tasks": [
+    {
+      "name": "study",
+      "timeSpent": "0.2"
+    },
+    {
+      "name": "study",
+      "timeSpent": "0.25"
+    }
+  ]
 }
