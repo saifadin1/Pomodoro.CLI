@@ -1,15 +1,17 @@
-﻿using Spectre.Console;
+﻿using Microsoft.Extensions.Configuration;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Pomodoro.Commands
 {
     internal class StartCommand : AsyncCommand<StartCommand.Settings>
     {
+        
+
         public class Settings : CommandSettings
         {
             [CommandArgument(0, "<Name>")]
@@ -18,43 +20,41 @@ namespace Pomodoro.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
+            
             var SoundManager = new SoundManager();
-
-
 
             var choiceOfWorkSession = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("Do you want to start a work session rigt now?")
+                .Title("Do you want to start a work session right now?")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Yes" , "No"
+                    "Yes", "No"
                 }));
 
             await SoundManager.PlayStartSound();
 
-
             if (choiceOfWorkSession == "No")
             {
+                ClearCurrentTask();
+                SaveConfiguration();
                 return 0;
             }
 
-            var totalWorkMinutes = Double.Parse(Program.Configuration["time:work"]);
+
+            double totalWorkMinutes = Double.Parse(Program.jsonObj["time"]["work"].ToString());
             var updateInterval = 1;
             var totalWorkSeconds = totalWorkMinutes * 60;
             var totalSteps = totalWorkSeconds / updateInterval;
 
-
-            Program.Configuration["current task name"] = settings.Name;
-            Program.Configuration["current task type"] = "work";
-            Program.Configuration["currunt task time left"] = Program.Configuration["time:work"];
-
+            Program.jsonObj["current task"]["name"] = settings.Name;
+            Program.jsonObj["current task"]["type"] = "work";
+            Program.jsonObj["current task"]["timeLeft"] = Program.jsonObj["time"]["work"];
 
             await AnsiConsole.Progress()
             .StartAsync(async ctx =>
             {
-                
                 var task1 = ctx.AddTask($"[green]Task: {settings.Name}[/]");
-                task1.MaxValue(totalSteps);
+                task1.MaxValue((int)totalSteps);
 
                 for (int i = 0; i < totalSteps; i++)
                 {
@@ -63,8 +63,13 @@ namespace Pomodoro.Commands
                 }
 
                 task1.StopTask();
-
             });
+
+            
+
+            int completedSessionsInt = Int32.Parse(Program.jsonObj["completedSessions"].ToString());
+            completedSessionsInt++;
+            Program.jsonObj["completedSessions"] = completedSessionsInt.ToString();
 
             await SoundManager.PlayEndSound();
 
@@ -73,66 +78,64 @@ namespace Pomodoro.Commands
                 .Title("Do you want to start a break?")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Yes" , "No"
+                    "Yes", "No"
                 }));
 
             await SoundManager.PlayStartSound();
 
-
             if (choiceOfBreakSession == "No")
             {
-                Program.Configuration["current task type"] = null;
-                Program.Configuration["currunt task time left"] = null;
-                Program.Configuration["current task name"] = null;
-                Program.Configuration["current task type"] = null;
-                Program.Configuration["completed sessions"] = "0";
+                ClearCurrentTask();
+                SaveConfiguration();
                 return 0;
             }
-            else
-            { 
-                string completedSessions = Program.Configuration["completed sessions"];
-                int completedSessionsInt = Int32.Parse(completedSessions);
-                completedSessionsInt++;
-                Program.Configuration["completed sessions"] = completedSessionsInt.ToString();
+            bool isLongBreak = (completedSessionsInt % 4 == 0);
+            var totalBreakMinutes = Double.Parse(isLongBreak ? Program.jsonObj["time"]["longBreak"].ToString()
+                                                                : Program.jsonObj["time"]["shortBreak"].ToString());
+            var totalBreakSeconds = totalBreakMinutes * 60;
+            totalSteps = totalBreakSeconds / updateInterval;
 
-                bool isLongBreak = (completedSessionsInt % 4 == 0);
-
-                var totalBreakMinutes = Double.Parse(isLongBreak ? Program.Configuration["time:LongBreak"] 
-                                                                 : Program.Configuration["time:shortBreak"]);
-                var totalBreakSeconds = totalBreakMinutes * 60;
-                totalSteps = totalBreakSeconds / updateInterval;
+            Program.jsonObj["current task"]["type"] = isLongBreak ? "longBreak" : "shortBreak";
+            Program.jsonObj["current task"]["timeleft"] = isLongBreak ? Program.jsonObj["time"]["longBreak"].ToString()
+                                                                            : Program.jsonObj["time"]["shortBreak"].ToString();
 
 
-                Program.Configuration["current task type"] = isLongBreak ? "LongBreak":"shortBreak";
-                Program.Configuration["currunt task time left"] = isLongBreak ? Program.Configuration["time:LongBreak"]
-                                                                               :Program.Configuration["time:shortBreak"];
+            Console.WriteLine("Break started");
+            await AnsiConsole.Progress()
+            .StartAsync(async ctx =>
+            {
+                var task1 = ctx.AddTask($"[green]Break: {settings.Name}[/]");
+                task1.MaxValue((int)totalSteps);
 
-                await AnsiConsole.Progress()
-                .StartAsync(async ctx =>
+                for (int i = 0; i < totalSteps; i++)
                 {
+                    await Task.Delay(updateInterval * 1000);
+                    task1.Increment(1);
+                }
 
-                    var task1 = ctx.AddTask($"[green]Break: {settings.Name}[/]");
-                    task1.MaxValue(totalSteps);
+                task1.StopTask();
+            });
 
-                    for (int i = 0; i < totalSteps; i++)
-                    {
-                        await Task.Delay(updateInterval * 1000);
-                        task1.Increment(1);
-                    }
+            ClearCurrentTask();
+            SaveConfiguration();
 
-                    task1.StopTask();
+            await SoundManager.PlayEndSound();
 
-                });
-
-                Program.Configuration["current task type"] = null;
-                Program.Configuration["currunt task time left"] = null;
-
-                await SoundManager.PlayEndSound();
-
-                await ExecuteAsync(context, settings);
-            }
-
+            await ExecuteAsync(context, settings);
             return 0;
+        }
+
+        private void ClearCurrentTask()
+        {
+            Program.jsonObj["current task"]["name"] = "";
+            Program.jsonObj["current task"]["type"] = "";
+            Program.jsonObj["current task"]["timeLeft"] = "";
+        }
+
+        private void SaveConfiguration()
+        {
+            string output = Newtonsoft.Json.JsonConvert.SerializeObject(Program.jsonObj, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText("settings.json", output);
         }
     }
 }

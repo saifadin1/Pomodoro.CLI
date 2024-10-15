@@ -14,7 +14,7 @@ namespace Pomodoro
         {
             try
             {
-                string relativePath = Program.Configuration["sounds:start"];
+                string relativePath = Program.jsonObj["sounds"]["start"].ToString();
 
                 string filePath = Path.Combine(AppContext.BaseDirectory, relativePath.TrimStart('~', '/'));
 
@@ -45,7 +45,7 @@ namespace Pomodoro
         {
             try
             {
-                string relativePath = Program.Configuration["sounds:end"];
+                string relativePath = Program.jsonObj["sounds"]["end"].ToString();
 
                 string filePath = Path.Combine(AppContext.BaseDirectory, relativePath.TrimStart('~', '/'));
 
