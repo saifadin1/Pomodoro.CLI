@@ -1,5 +1,16 @@
 {
   "sounds": {
-    "start": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\system-notification-199277.mp3"
-  }
+    "start": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\system-notification-199277.mp3",
+    "end": "D:\\C#_Projects\\Pomdoro\\Pomdoro\\Media\\Sounds\\ringtone-3-133487.mp3"
+  },
+  "time": {
+    "work": 0.1,
+    "shortBreak": 0.1,
+    "longBreak": 15
+  },
+  "completed sessions":  0,
+  "currunt task name": null,
+  "currunt task type": null,
+  "currunt task time": null,
+  "currunt task time left": null
 }
