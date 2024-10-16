@@ -6,6 +6,7 @@ Pomodoro.CLI is a command-line tool to help you manage your work sessions using 
 ## Features
 
 * Work Sessions: Set work sessions with a defined time limit to stay focused on tasks.
+* Notifications: Receive notifications when it's time to start or end a work or break session.
 * Break Sessions: Take short or long breaks between work sessions to recharge.
 * Session Statistics: Track and display statistics for your work and break sessions.
 * User-friendly Interface: Enjoy an attractive and responsive command-line interface powered by Spectre.Console.
