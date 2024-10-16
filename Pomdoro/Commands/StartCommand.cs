@@ -76,11 +76,11 @@ namespace Pomodoro.Commands
             completedSessionsInt++;
             Program.jsonObj["completedSessions"] = completedSessionsInt.ToString();
 
-            / await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
+            await SoundManager.PlaySoundAsync(Program.jsonObj["sounds"]["end"]);
 
             var choiceOfTaskEnded = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-            .Title($"Have you finished the task?: {Program.jsonObj["current task"]["name"]}?")
+            .Title($"Have you finished the task: {Program.jsonObj["current task"]["name"]}?")
             .PageSize(10)
             .AddChoices(new[] {
                 "Yes finally!" + Emoji.Known.GrinningFaceWithSmilingEyes,
@@ -170,7 +170,7 @@ namespace Pomodoro.Commands
             await AnsiConsole.Progress()
             .StartAsync(async ctx =>
             {
-                var task1 = ctx.AddTask($"[green]Break{Emoji.Known.SleepingFace}[/]");
+                var task1 = ctx.AddTask($"[darkslategray1]Break{Emoji.Known.SleepingFace}[/]");
                 task1.MaxValue((int)totalSteps);
 
                 for (int i = 0; i < totalSteps; i++)

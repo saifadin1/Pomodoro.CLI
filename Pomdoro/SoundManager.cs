@@ -15,7 +15,6 @@ namespace Pomodoro
             try
             {
                 string relativePath = sound;
-                Console.WriteLine(relativePath);
                 string filePath = Path.Combine(AppContext.BaseDirectory, relativePath.TrimStart('~', '/'));
 
                 if (filePath == null)

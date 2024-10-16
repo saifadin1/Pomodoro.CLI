@@ -21,8 +21,8 @@ namespace Pomodoro.Commands
         {
             Program.SaveConfiguration();
 
-            int CompletedSessions = Int32.Parse(Program.jsonObj["completedSessions"].ToString()) / 60;
-            double TotalWorkTime = Double.Parse(Program.jsonObj["time"]["work"].ToString()) * CompletedSessions;
+            int CompletedSessions = Int32.Parse(Program.jsonObj["completedSessions"].ToString());
+            double TotalWorkTime = Double.Parse(Program.jsonObj["time"]["work"].ToString()) * CompletedSessions / 60;
             var completedTasksList = Program.jsonObj["completed tasks"] as JArray;
             
             BarChart barChart = new BarChart();
@@ -42,7 +42,7 @@ namespace Pomodoro.Commands
 
             AnsiConsole.Write(barChart
                 .Width(60)
-                .Label($"[green bold underline]Total time: {Math.Round(TotalWorkTime)}[/]")
+                .Label($"[green bold underline]Total time: {Math.Round(TotalWorkTime , 2)}[/]")
                 .CenterLabel());
 
             return 0;
