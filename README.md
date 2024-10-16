@@ -30,6 +30,6 @@ Pomodoro.CLI is a command-line tool to help you manage your work sessions using 
 
 
 ## Future Features:
-1. [] Add options to modify settings
-2. [] Add options to add custom sounds and desktop notifications.
-3. [] Enable sync session data with external productivity apps.
+1. [ ] Add options to modify settings
+2. [ ] Add options to add custom sounds and desktop notifications.
+3. [ ] Enable sync session data with external productivity apps.
